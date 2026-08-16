@@ -1,0 +1,67 @@
+name: Deploy ONWARD Beta
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ONWARD-beta.apk
+      - index.html
+      - release.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: onward-beta-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Verify and publish beta
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Verify pinned Android APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f ONWARD-beta.apk
+          test -f index.html
+          test -f release.json
+          EXPECTED="$(node -p "JSON.parse(require('fs').readFileSync('release.json','utf8')).android.apkSha256")"
+          ACTUAL="$(sha256sum ONWARD-beta.apk | awk '{print $1}')"
+          echo "Expected APK SHA-256: $EXPECTED"
+          echo "Actual APK SHA-256:   $ACTUAL"
+          test "$ACTUAL" = "$EXPECTED"
+
+      - name: Prepare Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf site
+          mkdir site
+          cp index.html ONWARD-beta.apk release.json site/
+          touch site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
