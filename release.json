@@ -1,0 +1,17 @@
+{
+  "channel": "beta",
+  "releasedAt": "2026-08-16",
+  "android": {
+    "build": 148,
+    "sourceMainSha": "94c2e977901f50fe14f24bfb00a69122e1bed0ad",
+    "actionsRunId": 31942421459,
+    "apkFile": "ONWARD-beta.apk",
+    "apkSha256": "5142d677d50f77094793b844e1e8191d52116f2eb199e76857bb681d8782e34a"
+  },
+  "ios": {
+    "testFlightBuild": 34,
+    "sourceMainSha": "cb9b28c9ce0c2e5c33e4d917ca45e0bacb643086",
+    "actionsRunId": 31941775257,
+    "publicLink": null
+  }
+}
